@@ -1,0 +1,214 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "from flask import Flask\n",
+        "import sqlite3\n",
+        "\n",
+        "app = Flask(__name__)\n",
+        "\n",
+        "# Create Database\n",
+        "def create_db():\n",
+        "    conn = sqlite3.connect(\"event.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\"\"\"\n",
+        "        CREATE TABLE IF NOT EXISTS events(\n",
+        "                id INTEGER PRIMARY KEY AUTOINCREMENT,\n",
+        "                name TEXT,\n",
+        "                date TEXT\n",
+        "        )\n",
+        "    \"\"\")\n",
+        "\n",
+        "    c.execute(\"\"\"\n",
+        "        CREATE TABLE IF NOT EXISTS registrations(\n",
+        "                id INTEGER PRIMARY KEY AUTOINCREMENT,\n",
+        "                user_name TEXT,\n",
+        "                event_name TEXT\n",
+        "        )\n",
+        "    \"\"\")\n",
+        "\n",
+        "    conn.commit()\n",
+        "    conn.close()\n",
+        "\n",
+        "create_db()\n",
+        "\n",
+        "@app.route(\"/\")\n",
+        "def home():\n",
+        "    return \"Event Registration System\"\n",
+        "\n",
+        "@app.route(\"/events\")\n",
+        "def events():\n",
+        "    conn = sqlite3.connect(\"event.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\"SELECT * FROM events\")\n",
+        "    data = c.fetchall()\n",
+        "\n",
+        "    conn.close()\n",
+        "    return str(data)\n",
+        "\n",
+        "@app.route(\"/add_event\")\n",
+        "def add_event():\n",
+        "    conn = sqlite3.connect(\"event.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\n",
+        "        \"INSERT INTO events(name,date) VALUES(?,?)\",\n",
+        "        (\"Python Workshop\", \"2026-08-01\")\n",
+        "    )\n",
+        "\n",
+        "    conn.commit()\n",
+        "    conn.close()\n",
+        "\n",
+        "    return \"Event Added\"\n",
+        "\n",
+        "@app.route(\"/register\")\n",
+        "def register():\n",
+        "    conn = sqlite3.connect(\"event.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\n",
+        "        \"INSERT INTO registrations(user_name,event_name) VALUES(?,?)\",\n",
+        "        (\"Deepali\", \"Python Workshop\")\n",
+        "    )\n",
+        "\n",
+        "    conn.commit()\n",
+        "    conn.close()\n",
+        "\n",
+        "    return \"Registration Successful\"\n",
+        "\n",
+        "@app.route(\"/registrations\")\n",
+        "def registrations():\n",
+        "    conn = sqlite3.connect(\"event.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\"SELECT * FROM registrations\")\n",
+        "    data = c.fetchall()\n",
+        "\n",
+        "    conn.close()\n",
+        "    return str(data)\n",
+        "\n",
+        "if __name__ == \"__main__\":\n",
+        "    app.run(debug=True)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "d-NS-Oeq2TQ9",
+        "outputId": "b0843837-055d-4d57-f7b4-cc18820ce414"
+      },
+      "execution_count": 2,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * Serving Flask app '__main__'\n",
+            " * Debug mode: on\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "INFO:werkzeug:\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n",
+            " * Running on http://127.0.0.1:5000\n",
+            "INFO:werkzeug:\u001b[33mPress CTRL+C to quit\u001b[0m\n",
+            "INFO:werkzeug: * Restarting with watchdog (inotify)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import sqlite3\n",
+        "\n",
+        "conn = sqlite3.connect(\"event.db\")\n",
+        "c = conn.cursor()\n",
+        "\n",
+        "c.execute(\n",
+        "    \"INSERT INTO events(name,date) VALUES(?,?)\",\n",
+        "        (\"Python Workshop\", \"2026-08-01\")\n",
+        "        )\n",
+        "\n",
+        "c.execute(\n",
+        "            \"INSERT INTO registrations(user_name,event_name) VALUES(?,?)\",\n",
+        "                (\"Deepali\", \"Python Workshop\")\n",
+        "                )\n",
+        "\n",
+        "conn.commit()\n",
+        "conn.close()\n",
+        "\n",
+        "print(\"Data Added Successfully\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "EtHR57Pv3MaJ",
+        "outputId": "3c3c4520-7947-4ce9-a5a1-83d73829a039"
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Data Added Successfully\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "conn = sqlite3.connect(\"event.db\")\n",
+        "c = conn.cursor()\n",
+        "\n",
+        "c.execute(\"SELECT * FROM events\")\n",
+        "print(c.fetchall())\n",
+        "\n",
+        "c.execute(\"SELECT * FROM registrations\")\n",
+        "print(c.fetchall())\n",
+        "\n",
+        "conn.close()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "eh5XvEnS3Tgv",
+        "outputId": "dc04238e-136d-4d7b-a1af-516dfe3348db"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "[(1, 'Python Workshop', '2026-08-01')]\n",
+            "[(1, 'Deepali', 'Python Workshop')]\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
